@@ -24,6 +24,19 @@ export function SongViewPage() {
   const detectedKey = currentSong ? detectKey(currentSong.content) : null;
   const originalKey = (currentSong?.original_key || detectedKey || 'C') as MusicalKey;
 
+  const {
+    currentKey,
+    originalKey: origKey,
+    useFlats,
+    semitones,
+    isTransposed,
+    setKey,
+    transposeUp,
+    transposeDown,
+    reset,
+    toggleFlats,
+  } = useTransposition(originalKey);
+
   useEffect(() => {
     if (id) {
       fetchSong(id);
