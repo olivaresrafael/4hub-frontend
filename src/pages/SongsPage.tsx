@@ -24,7 +24,7 @@ export function SongsPage() {
   }, [fetchSongs]);
 
   useEffect(() => {
-    if (filter === 'shared') {
+    if (filter === 'shared' || filter === 'all') {
       loadSharedSongs();
     }
   }, [filter]);
@@ -47,7 +47,8 @@ export function SongsPage() {
     } else if (filter === 'owned') {
       filtered = songs.filter(s => !('is_collaborator' in s && s.is_collaborator));
     } else {
-      filtered = songs;
+      // "all" shows both owned and shared
+      filtered = [...songs, ...sharedSongs];
     }
     
     return filtered.filter(

@@ -328,7 +328,7 @@ export async function getCollaborators(songId: string): Promise<Collaborator[]> 
 
 export async function addCollaborator(
   songId: string, 
-  userId: string, 
+  email: string, 
   permission: 'read' | 'comment' | 'edit' | 'admin' = 'read'
 ): Promise<Collaborator> {
   const { data: { session } } = await supabase.auth.getSession();
@@ -339,7 +339,7 @@ export async function addCollaborator(
       'Content-Type': 'application/json',
       ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
     },
-    body: JSON.stringify({ user_id: userId, permission }),
+    body: JSON.stringify({ email, permission }),
   });
   
   if (!response.ok) {
