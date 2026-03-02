@@ -517,3 +517,37 @@ export async function logActivity(
   
   return response.json();
 }
+
+// =============================================
+// STATISTICS
+// =============================================
+
+export interface SongStats {
+  view_count: number;
+  share_count: number;
+  comments_count: number;
+  collaborators_count: number;
+}
+
+export async function incrementViewCount(songId: string): Promise<void> {
+  await fetch(`${API_URL}/songs/${songId}/view`, {
+    method: 'POST',
+  });
+}
+
+export async function getSongStats(songId: string): Promise<SongStats> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/${songId}/stats`, {
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get song stats');
+  }
+  
+  return response.json();
+}
