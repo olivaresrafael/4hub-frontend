@@ -7,6 +7,7 @@ import { SongEditor } from '../components/editor';
 import { Button, Input, ShareModal, CollaboratorsModal } from '../components/ui';
 import toast from 'react-hot-toast';
 import { ArrowLeftIcon, TrashIcon, ShareIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { logActivity } from '../services/songService';
 
 export function EditSongPage() {
   const { id } = useParams<{ id: string }>();
@@ -74,6 +75,7 @@ export function EditSongPage() {
       };
 
       await update(id, songData);
+      await logActivity(id, 'edit', { title: songData.title });
       toast.success('Canción actualizada');
       navigate('/songs');
     } catch (error: unknown) {
