@@ -11,7 +11,7 @@ import { detectKey } from '../utils/chordParser';
 import toast from 'react-hot-toast';
 import { ArrowLeftIcon, PencilIcon, DocumentDuplicateIcon, EyeIcon, ChatBubbleLeftIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import type { MusicalKey } from '../hooks/useTransposition';
-import { incrementViewCount, getSongStats, type SongStats } from '../services/songService';
+import { incrementViewCount, getSongStats, getActivityLog, type SongStats, type ActivityLog } from '../services/songService';
 
 export function SongViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +20,7 @@ export function SongViewPage() {
   const { isAuthenticated } = useAuthStore();
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [stats, setStats] = useState<SongStats | null>(null);
+  const [activity, setActivity] = useState<ActivityLog[]>([]);
 
   const detectedKey = currentSong ? detectKey(currentSong.content) : null;
   const originalKey = (currentSong?.original_key || detectedKey || 'C') as MusicalKey;
@@ -43,6 +44,9 @@ export function SongViewPage() {
       incrementViewCount(id).catch(() => {});
       getSongStats(id)
         .then(setStats)
+        .catch(() => {});
+      getActivityLog(id)
+        .then(setActivity)
         .catch(() => {});
     }
   }, [id, fetchSong]);
@@ -193,6 +197,26 @@ export function SongViewPage() {
               useFlats={useFlats}
             />
           </div>
+
+          {activity.length > 0 && (
+            <div className="card">
+              <h3 className="font-semibold mb-2 text-sm text-gray-600">Actividad reciente</h3>
+              <div className="space-y-2">
+                {activity.slice(0, 5).map((item) => (
+                  <div key={item.id} className="text-sm flex items-center gap-2 text-gray-500">
+                    <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                    <span>{item.action}</span>
+                    {item.profiles?.username && (
+                      <span className="text-gray-400">por {item.profiles.username}</span>
+                    )}
+                    <span className="text-gray-400 text-xs">
+                      {new Date(item.created_at).toLocaleDateString('es-ES')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {isAuthenticated && (
