@@ -56,7 +56,7 @@ export function CommentsSection({ songId }: CommentsSectionProps) {
     if (!window.confirm('¿Eliminar este comentario?')) return;
 
     try {
-      await deleteComment(commentId);
+      await deleteComment(songId, commentId);
       setComments(comments.filter(c => c.id !== commentId));
       toast.success('Comentario eliminado');
     } catch (error: unknown) {

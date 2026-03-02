@@ -445,10 +445,10 @@ export async function addComment(songId: string, content: string): Promise<Comme
   return response.json();
 }
 
-export async function deleteComment(commentId: string): Promise<void> {
+export async function deleteComment(songId: string, commentId: string): Promise<void> {
   const { data: { session } } = await supabase.auth.getSession();
   
-  const response = await fetch(`${API_URL}/songs/comments/${commentId}`, {
+  const response = await fetch(`${API_URL}/songs/${songId}/comments/${commentId}`, {
     method: 'DELETE',
     headers: {
       ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
