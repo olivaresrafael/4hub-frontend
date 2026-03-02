@@ -1,0 +1,9 @@
+export { HomePage } from './HomePage';
+export { LoginPage } from './LoginPage';
+export { RegisterPage } from './RegisterPage';
+export { SongsPage } from './SongsPage';
+export { NewSongPage } from './NewSongPage';
+export { EditSongPage } from './EditSongPage';
+export { SongViewPage } from './SongViewPage';
+export { ExplorePage } from './ExplorePage';
+export { PublicSongPage } from './PublicSongPage';
