@@ -9,8 +9,9 @@ import { useTransposition } from '../hooks/useTransposition';
 import { Button } from '../components/ui';
 import { detectKey } from '../utils/chordParser';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon, PencilIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PencilIcon, DocumentDuplicateIcon, EyeIcon, ChatBubbleLeftIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import type { MusicalKey } from '../hooks/useTransposition';
+import { incrementViewCount, getSongStats, type SongStats } from '../services/songService';
 
 export function SongViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,7 @@ export function SongViewPage() {
   const { currentSong, isLoading, fetchSong, create } = useSongsStore();
   const { isAuthenticated } = useAuthStore();
   const [isDuplicating, setIsDuplicating] = useState(false);
+  const [stats, setStats] = useState<SongStats | null>(null);
 
   const detectedKey = currentSong ? detectKey(currentSong.content) : null;
   const originalKey = (currentSong?.original_key || detectedKey || 'C') as MusicalKey;
@@ -38,6 +40,10 @@ export function SongViewPage() {
   useEffect(() => {
     if (id) {
       fetchSong(id);
+      incrementViewCount(id).catch(() => {});
+      getSongStats(id)
+        .then(setStats)
+        .catch(() => {});
     }
   }, [id, fetchSong]);
 
@@ -104,6 +110,22 @@ export function SongViewPage() {
             </div>
           </div>
           <div className="flex gap-2">
+            {stats && (
+              <div className="flex items-center gap-3 text-sm text-gray-500 mr-4">
+                <span className="flex items-center gap-1">
+                  <EyeIcon style={{ width: '1rem', height: '1rem' }} />
+                  {stats.view_count}
+                </span>
+                <span className="flex items-center gap-1">
+                  <ChatBubbleLeftIcon style={{ width: '1rem', height: '1rem' }} />
+                  {stats.comments_count}
+                </span>
+                <span className="flex items-center gap-1">
+                  <UserGroupIcon style={{ width: '1rem', height: '1rem' }} />
+                  {stats.collaborators_count}
+                </span>
+              </div>
+            )}
             <Button
               variant="secondary"
               onClick={handleDuplicate}

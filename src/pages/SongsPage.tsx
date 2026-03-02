@@ -155,6 +155,23 @@ interface SongCardProps {
   isDeleting: boolean;
 }
 
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return 'Hoy';
+  } else if (diffDays === 1) {
+    return 'Ayer';
+  } else if (diffDays < 7) {
+    return `Hace ${diffDays} días`;
+  } else {
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  }
+}
+
 function SongCard({ song, onView, onEdit, onDelete, isDeleting }: SongCardProps) {
   const isCollaborator = 'is_collaborator' in song && song.is_collaborator;
   
@@ -186,6 +203,9 @@ function SongCard({ song, onView, onEdit, onDelete, isDeleting }: SongCardProps)
           {song.tempo && (
             <span>{song.tempo} BPM</span>
           )}
+        </div>
+        <div className="mt-2 text-xs text-gray-400">
+          Editado {formatDate(song.updated_at)}
         </div>
       </CardContent>
       <CardFooter>
