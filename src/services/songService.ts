@@ -632,3 +632,90 @@ export async function markAllAsRead(): Promise<void> {
     throw new Error(error.error || 'Failed to mark all as read');
   }
 }
+
+// =============================================
+// VERSIONS
+// =============================================
+
+export interface SongVersion {
+  id: string;
+  song_id: string;
+  content: string;
+  title: string;
+  version_number: number;
+  created_by: string;
+  created_at: string;
+  profiles?: {
+    username: string;
+  };
+}
+
+export interface SongLineage {
+  song: any;
+  parent: any;
+  forks: any[];
+}
+
+export async function getSongVersions(songId: string): Promise<SongVersion[]> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/${songId}/versions`, {
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get versions');
+  }
+  
+  return response.json();
+}
+
+export async function createSongVersion(songId: string): Promise<SongVersion> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/${songId}/versions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to create version');
+  }
+  
+  return response.json();
+}
+
+export async function getSongLineage(songId: string): Promise<SongLineage> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/${songId}/lineage`, {
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get lineage');
+  }
+  
+  return response.json();
+}
+
+export async function getSongForks(songId: string): Promise<any[]> {
+  const response = await fetch(`${API_URL}/songs/${songId}/forks`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get forks');
+  }
+  
+  return response.json();
+}

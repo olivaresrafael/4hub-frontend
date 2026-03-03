@@ -175,6 +175,7 @@ function formatDate(dateString: string): string {
 
 function SongCard({ song, onView, onEdit, onDelete, isDeleting }: SongCardProps) {
   const isCollaborator = 'is_collaborator' in song && song.is_collaborator;
+  const isFork = 'parent_song_id' in song && song.parent_song_id;
   
   return (
     <Card hoverable onClick={onEdit}>
@@ -183,6 +184,11 @@ function SongCard({ song, onView, onEdit, onDelete, isDeleting }: SongCardProps)
         subtitle={song.artist || 'Sin artista'}
         action={
           <div className="flex gap-1">
+            {isFork && (
+              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                Fork
+              </span>
+            )}
             {isCollaborator && (
               <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
                 Colaborador
