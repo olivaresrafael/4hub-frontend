@@ -12,7 +12,13 @@ export function NotificationBell() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadNotifications();
+    if (isOpen) {
+      loadNotifications();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    loadUnreadCount();
     
     // Poll for new notifications every 30 seconds
     const interval = setInterval(loadUnreadCount, 30000);
@@ -31,7 +37,9 @@ export function NotificationBell() {
   const loadNotifications = async () => {
     setIsLoading(true);
     try {
+      console.log('Loading notifications...');
       const data = await getNotifications();
+      console.log('Notifications loaded:', data);
       setNotifications(data);
       await loadUnreadCount();
     } catch (error) {
