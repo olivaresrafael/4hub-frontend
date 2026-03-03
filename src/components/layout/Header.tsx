@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores';
 import { Button } from '../ui';
 import { MusicalNoteIcon, UserCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { NotificationBell } from '../ui/NotificationBell';
 
 export function Header() {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ export function Header() {
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
+                <NotificationBell />
                 <div className="flex items-center gap-2 text-gray-700">
                   <UserCircleIcon className="h-6 w-6" />
                   <span className="hidden sm:inline font-medium">

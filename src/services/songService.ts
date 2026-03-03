@@ -551,3 +551,84 @@ export async function getSongStats(songId: string): Promise<SongStats> {
   
   return response.json();
 }
+
+// =============================================
+// NOTIFICATIONS
+// =============================================
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string | null;
+  link: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export async function getNotifications(): Promise<Notification[]> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/notifications`, {
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get notifications');
+  }
+  
+  return response.json();
+}
+
+export async function getUnreadCount(): Promise<{ count: number }> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/notifications/unread-count`, {
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get unread count');
+  }
+  
+  return response.json();
+}
+
+export async function markAsRead(notificationId: string): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/notifications/${notificationId}/read`, {
+    method: 'POST',
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to mark as read');
+  }
+}
+
+export async function markAllAsRead(): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/notifications/read-all`, {
+    method: 'POST',
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to mark all as read');
+  }
+}
