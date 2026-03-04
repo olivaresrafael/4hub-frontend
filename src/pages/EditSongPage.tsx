@@ -4,10 +4,10 @@ import type { UpdateSongDTO } from '../types';
 import { useSongsStore } from '../stores';
 import { Layout } from '../components/layout';
 import { SongEditor } from '../components/editor';
-import { Button, Input, ShareModal, CollaboratorsModal } from '../components/ui';
+import { Button, Input, ShareModal, CollaboratorsModal, VersionsModal } from '../components/ui';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon, TrashIcon, ShareIcon, UsersIcon } from '@heroicons/react/24/outline';
-import { logActivity } from '../services/songService';
+import { ArrowLeftIcon, TrashIcon, ShareIcon, UsersIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { logActivity, createSongVersion } from '../services/songService';
 
 export function EditSongPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +16,7 @@ export function EditSongPage() {
   const [content, setContent] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCollaboratorsModal, setShowCollaboratorsModal] = useState(false);
+  const [showVersionsModal, setShowVersionsModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     artist: '',
@@ -84,6 +85,18 @@ export function EditSongPage() {
     }
   };
 
+  const handleSaveVersion = async () => {
+    if (!id) return;
+
+    try {
+      await createSongVersion(id);
+      toast.success('Versión guardada');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error al guardar versión';
+      toast.error(message);
+    }
+  };
+
   const handleDelete = async () => {
     if (!id) return;
 
@@ -121,6 +134,11 @@ export function EditSongPage() {
               <ArrowLeftIcon className="h-5 w-5" />
             </Button>
             <h1 className="text-2xl font-bold text-gray-900">Editar Canción</h1>
+            {currentSong?.parent_song_id && (
+              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                Fork
+              </span>
+            )}
           </div>
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => setShowCollaboratorsModal(true)}>
@@ -214,6 +232,22 @@ export function EditSongPage() {
                 Cancelar
               </Button>
               <Button
+                variant="secondary"
+                onClick={handleSaveVersion}
+                title="Guardar una versión"
+              >
+                <ClockIcon className="h-4 w-4 mr-1" />
+                Guardar Versión
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setShowVersionsModal(true)}
+                title="Ver historial de versiones"
+              >
+                <ClockIcon className="h-4 w-4 mr-1" />
+                Historial
+              </Button>
+              <Button
                 className="flex-1"
                 onClick={handleSave}
                 isLoading={isLoading}
@@ -237,6 +271,14 @@ export function EditSongPage() {
         <CollaboratorsModal
           isOpen={showCollaboratorsModal}
           onClose={() => setShowCollaboratorsModal(false)}
+          songId={id}
+        />
+      )}
+
+      {id && (
+        <VersionsModal
+          isOpen={showVersionsModal}
+          onClose={() => setShowVersionsModal(false)}
           songId={id}
         />
       )}

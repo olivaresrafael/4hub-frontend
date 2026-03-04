@@ -11,7 +11,7 @@ import { detectKey } from '../utils/chordParser';
 import toast from 'react-hot-toast';
 import { ArrowLeftIcon, PencilIcon, DocumentDuplicateIcon, EyeIcon, ChatBubbleLeftIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import type { MusicalKey } from '../hooks/useTransposition';
-import { incrementViewCount, getSongStats, getActivityLog, type SongStats, type ActivityLog } from '../services/songService';
+import { incrementViewCount, getSongStats, getActivityLog, getSong, type SongStats, type ActivityLog } from '../services/songService';
 
 export function SongViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +21,7 @@ export function SongViewPage() {
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [stats, setStats] = useState<SongStats | null>(null);
   const [activity, setActivity] = useState<ActivityLog[]>([]);
+  const [parentSong, setParentSong] = useState<{ id: string; title: string } | null>(null);
 
   const detectedKey = currentSong ? detectKey(currentSong.content) : null;
   const originalKey = (currentSong?.original_key || detectedKey || 'C') as MusicalKey;
@@ -50,6 +51,14 @@ export function SongViewPage() {
         .catch(() => {});
     }
   }, [id, fetchSong]);
+
+  useEffect(() => {
+    if (currentSong?.parent_song_id) {
+      getSong(currentSong.parent_song_id)
+        .then((song) => setParentSong({ id: song.id, title: song.title }))
+        .catch(() => {});
+    }
+  }, [currentSong?.parent_song_id]);
 
   const handleDuplicate = async () => {
     if (!currentSong || !isAuthenticated) return;
@@ -110,6 +119,11 @@ export function SongViewPage() {
               <h1 className="text-2xl font-bold text-gray-900">{currentSong.title}</h1>
               {currentSong.artist && (
                 <p className="text-gray-600">{currentSong.artist}</p>
+              )}
+              {parentSong && (
+                <p className="text-sm text-purple-600 mt-1">
+                  Fork de <button className="underline hover:text-purple-800" onClick={() => navigate(`/songs/${parentSong.id}`)}>{parentSong.title}</button>
+                </p>
               )}
             </div>
           </div>
