@@ -194,6 +194,11 @@ function SongCard({ song, onView, onEdit, onDelete, isDeleting }: SongCardProps)
                 Colaborador
               </span>
             )}
+            {song.likes_count && song.likes_count > 0 && (
+              <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                ♥ {song.likes_count}
+              </span>
+            )}
             {song.is_public && (
               <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
                 Pública

@@ -154,7 +154,7 @@ export async function getPublicSong(id: string): Promise<PublicSong> {
 export interface PublicSongListParams {
   genre?: string;
   key?: string;
-  sort?: 'recent' | 'popular';
+  sort?: 'recent' | 'popular' | 'views';
   limit?: number;
   offset?: number;
 }
@@ -715,6 +715,82 @@ export async function getSongForks(songId: string): Promise<any[]> {
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to get forks');
+  }
+  
+  return response.json();
+}
+
+// =============================================
+// LIKES
+// =============================================
+
+export interface SongLikes {
+  likes_count: number;
+  user_liked: boolean;
+}
+
+export async function likeSong(songId: string): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/${songId}/like`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to like song');
+  }
+}
+
+export async function unlikeSong(songId: string): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/${songId}/like`, {
+    method: 'DELETE',
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to unlike song');
+  }
+}
+
+export async function getSongLikes(songId: string): Promise<SongLikes> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/${songId}/likes`, {
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get likes');
+  }
+  
+  return response.json();
+}
+
+export async function getLikedSongs(): Promise<Song[]> {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(`${API_URL}/songs/liked`, {
+    headers: {
+      ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get liked songs');
   }
   
   return response.json();

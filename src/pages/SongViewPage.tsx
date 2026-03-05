@@ -9,9 +9,10 @@ import { useTransposition } from '../hooks/useTransposition';
 import { Button } from '../components/ui';
 import { detectKey } from '../utils/chordParser';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon, PencilIcon, DocumentDuplicateIcon, EyeIcon, ChatBubbleLeftIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PencilIcon, DocumentDuplicateIcon, EyeIcon, ChatBubbleLeftIcon, UserGroupIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import type { MusicalKey } from '../hooks/useTransposition';
-import { incrementViewCount, getSongStats, getActivityLog, getSong, type SongStats, type ActivityLog } from '../services/songService';
+import { incrementViewCount, getSongStats, getActivityLog, getSong, getSongLikes, likeSong, unlikeSong, type SongStats, type ActivityLog, type SongLikes } from '../services/songService';
 
 export function SongViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,8 @@ export function SongViewPage() {
   const [stats, setStats] = useState<SongStats | null>(null);
   const [activity, setActivity] = useState<ActivityLog[]>([]);
   const [parentSong, setParentSong] = useState<{ id: string; title: string } | null>(null);
+  const [likes, setLikes] = useState<SongLikes>({ likes_count: 0, user_liked: false });
+  const [isLiking, setIsLiking] = useState(false);
 
   const detectedKey = currentSong ? detectKey(currentSong.content) : null;
   const originalKey = (currentSong?.original_key || detectedKey || 'C') as MusicalKey;
@@ -59,6 +62,33 @@ export function SongViewPage() {
         .catch(() => {});
     }
   }, [currentSong?.parent_song_id]);
+
+  useEffect(() => {
+    if (id) {
+      getSongLikes(id)
+        .then(setLikes)
+        .catch(() => {});
+    }
+  }, [id]);
+
+  const handleLike = async () => {
+    if (!isAuthenticated || !id) return;
+    
+    setIsLiking(true);
+    try {
+      if (likes.user_liked) {
+        await unlikeSong(id);
+        setLikes(prev => ({ ...prev, user_liked: false, likes_count: prev.likes_count - 1 }));
+      } else {
+        await likeSong(id);
+        setLikes(prev => ({ ...prev, user_liked: true, likes_count: prev.likes_count + 1 }));
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Error al dar like');
+    } finally {
+      setIsLiking(false);
+    }
+  };
 
   const handleDuplicate = async () => {
     if (!currentSong || !isAuthenticated) return;
@@ -144,6 +174,19 @@ export function SongViewPage() {
                 </span>
               </div>
             )}
+            <Button
+              variant={likes.user_liked ? 'primary' : 'secondary'}
+              onClick={handleLike}
+              disabled={!isAuthenticated || isLiking}
+              title={isAuthenticated ? 'Me gusta' : 'Inicia sesión para dar like'}
+            >
+              {likes.user_liked ? (
+                <HeartIconSolid style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
+              ) : (
+                <HeartIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
+              )}
+              {likes.likes_count > 0 && likes.likes_count}
+            </Button>
             <Button
               variant="secondary"
               onClick={handleDuplicate}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuthStore } from '../stores';
 import { Layout } from '../components/layout';
 import { ChordViewer } from '../components/viewer';
@@ -107,7 +107,9 @@ export function PublicSongPage() {
               <h1 className="text-2xl font-bold text-gray-900">{song.title}</h1>
               {song.artist && <p className="text-gray-600">{song.artist}</p>}
               {song.owner_username && (
-                <p className="text-sm text-gray-500">Por {song.owner_username}</p>
+                <p className="text-sm text-gray-500">
+                  Por <Link to={`/users/${song.owner_username}`} className="text-primary-600 hover:text-primary-700">@{song.owner_username}</Link>
+                </p>
               )}
             </div>
           </div>

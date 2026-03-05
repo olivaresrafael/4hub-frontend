@@ -76,6 +76,7 @@ export function EditSongPage() {
       };
 
       await update(id, songData);
+      await createSongVersion(id);
       await logActivity(id, 'edit', { title: songData.title });
       toast.success('Canción actualizada');
       navigate('/songs');

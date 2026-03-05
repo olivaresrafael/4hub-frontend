@@ -7,3 +7,4 @@ export { CollaboratorsModal } from './CollaboratorsModal';
 export { Card, CardHeader, CardContent, CardFooter } from './Card';
 export { NotificationBell } from './NotificationBell';
 export { VersionsModal } from './VersionsModal';
+export { VersionDiffModal } from './VersionDiffModal';

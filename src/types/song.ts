@@ -9,8 +9,13 @@ export interface Song {
   is_public: boolean;
   owner_id: string;
   parent_song_id: string | null;
+  likes_count?: number;
+  view_count?: number;
   created_at: string;
   updated_at: string;
+  profiles?: {
+    username: string;
+  };
 }
 
 export interface CreateSongDTO {

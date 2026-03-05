@@ -4,7 +4,8 @@ import type { Song } from '../types';
 import { Layout } from '../components/layout';
 import { Button, Card, CardHeader, CardContent, CardFooter, Input, Select } from '../components/ui';
 import { getPublicSongList } from '../services/songService';
-import { MusicalNoteIcon, EyeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { MusicalNoteIcon, EyeIcon, MagnifyingGlassIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
 
 const GENRES = ['Rock', 'Pop', 'Balada', 'Cumbia', 'Salsa', 'Reggaeton', 'Folklore', 'Jazz', 'Blues', 'Otro'];
 const KEYS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
@@ -16,7 +17,7 @@ export function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [genre, setGenre] = useState('');
   const [key, setKey] = useState('');
-  const [sort, setSort] = useState<'recent' | 'popular'>('recent');
+  const [sort, setSort] = useState<'recent' | 'popular' | 'views'>('recent');
 
   useEffect(() => {
     loadSongs();
@@ -82,11 +83,12 @@ export function ExplorePage() {
           </Select>
           <Select
             value={sort}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSort(e.target.value as 'recent' | 'popular')}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSort(e.target.value as 'recent' | 'popular' | 'views')}
             className="w-40"
           >
             <option value="recent">Más recientes</option>
-            <option value="popular">Populares</option>
+            <option value="popular">Más gustadas</option>
+            <option value="views">Más vistas</option>
           </Select>
         </div>
 
@@ -104,16 +106,40 @@ export function ExplorePage() {
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredSongs.map((song) => (
+            {filteredSongs.map((song: any) => (
               <Card key={song.id} hoverable onClick={() => navigate(`/songs/${song.id}/public`)}>
                 <CardHeader
                   title={song.title}
                   subtitle={song.artist || 'Sin artista'}
+                  action={
+                    <div className="flex gap-1 flex-wrap justify-end">
+                      {song.parent_song_id && (
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                          Fork
+                        </span>
+                      )}
+                      {song.likes_count > 0 && (
+                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded flex items-center gap-1">
+                          <HeartIcon className="h-3 w-3" />
+                          {song.likes_count}
+                        </span>
+                      )}
+                    </div>
+                  }
                 />
                 <CardContent>
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     {song.original_key && <span>Tono: {song.original_key}</span>}
                     {song.genre && <span>{song.genre}</span>}
+                    {(song as any).profiles?.username && (
+                      <Link 
+                        to={`/users/${(song as any).profiles.username}`} 
+                        className="text-primary-600 hover:text-primary-700"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        @{(song as any).profiles.username}
+                      </Link>
+                    )}
                   </div>
                 </CardContent>
                 <CardFooter>

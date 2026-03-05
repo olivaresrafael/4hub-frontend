@@ -7,3 +7,4 @@ export { EditSongPage } from './EditSongPage';
 export { SongViewPage } from './SongViewPage';
 export { ExplorePage } from './ExplorePage';
 export { PublicSongPage } from './PublicSongPage';
+export { UserProfilePage } from './UserProfilePage';

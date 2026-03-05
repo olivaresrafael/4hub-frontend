@@ -13,6 +13,7 @@ import {
   SongViewPage,
   ExplorePage,
   PublicSongPage,
+  UserProfilePage,
 } from './pages';
 
 function App() {
@@ -37,6 +38,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/explore/:id" element={<PublicSongPage />} />
+        <Route path="/users/:username" element={<UserProfilePage />} />
         <Route path="/songs/:id/public" element={<PublicSongPage />} />
         <Route
           path="/login"
