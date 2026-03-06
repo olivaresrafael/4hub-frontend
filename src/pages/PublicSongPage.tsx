@@ -4,14 +4,16 @@ import { useAuthStore } from '../stores';
 import { Layout } from '../components/layout';
 import { ChordViewer } from '../components/viewer';
 import { TransposeControls } from '../components/transpose';
+import { CommentsSection } from '../components/comments/CommentsSection';
 import { useTransposition } from '../hooks/useTransposition';
 import { Button } from '../components/ui';
 import { detectKey } from '../utils/chordParser';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, DocumentDuplicateIcon, EyeIcon, ChatBubbleLeftIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import type { MusicalKey } from '../hooks/useTransposition';
-import { getPublicSong, forkPublicSong } from '../services/songService';
-import type { PublicSong } from '../services/songService';
+import { getPublicSong, forkPublicSong, getSongLikes, likeSong, unlikeSong, incrementViewCount, getSongStats } from '../services/songService';
+import type { PublicSong, SongLikes, SongStats } from '../services/songService';
 
 export function PublicSongPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +22,9 @@ export function PublicSongPage() {
   const [song, setSong] = useState<PublicSong | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isForking, setIsForking] = useState(false);
+  const [likes, setLikes] = useState<SongLikes>({ likes_count: 0, user_liked: false });
+  const [isLiking, setIsLiking] = useState(false);
+  const [stats, setStats] = useState<SongStats | null>(null);
 
   const detectedKey = song ? detectKey(song.content) : null;
   const originalKey = (song?.original_key || detectedKey || 'C') as MusicalKey;
@@ -40,6 +45,13 @@ export function PublicSongPage() {
   useEffect(() => {
     if (id) {
       loadSong(id);
+      incrementViewCount(id).catch(() => {});
+      getSongLikes(id)
+        .then(setLikes)
+        .catch(() => {});
+      getSongStats(id)
+        .then(setStats)
+        .catch(() => {});
     }
   }, [id]);
 
@@ -69,6 +81,25 @@ export function PublicSongPage() {
       toast.error(message);
     } finally {
       setIsForking(false);
+    }
+  };
+
+  const handleLike = async () => {
+    if (!isAuthenticated || !id) return;
+    
+    setIsLiking(true);
+    try {
+      if (likes.user_liked) {
+        await unlikeSong(id);
+        setLikes(prev => ({ ...prev, user_liked: false, likes_count: prev.likes_count - 1 }));
+      } else {
+        await likeSong(id);
+        setLikes(prev => ({ ...prev, user_liked: true, likes_count: prev.likes_count + 1 }));
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Error al dar like');
+    } finally {
+      setIsLiking(false);
     }
   };
 
@@ -113,12 +144,47 @@ export function PublicSongPage() {
               )}
             </div>
           </div>
-          {isAuthenticated && (
-            <Button variant="secondary" onClick={handleFork} isLoading={isForking}>
-              <DocumentDuplicateIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
-              Copiar a mi biblioteca
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {stats && (
+              <div className="flex items-center gap-3 text-sm text-gray-500 mr-4">
+                <span className="flex items-center gap-1">
+                  <EyeIcon style={{ width: '1rem', height: '1rem' }} />
+                  {stats.view_count}
+                </span>
+                <span className="flex items-center gap-1">
+                  <ChatBubbleLeftIcon style={{ width: '1rem', height: '1rem' }} />
+                  {stats.comments_count}
+                </span>
+              </div>
+            )}
+            {isAuthenticated && (
+              <>
+                <Button
+                  variant={likes.user_liked ? 'primary' : 'secondary'}
+                  onClick={handleLike}
+                  disabled={isLiking}
+                  title={isAuthenticated ? 'Me gusta' : 'Inicia sesión para dar like'}
+                >
+                  {likes.user_liked ? (
+                    <HeartIconSolid style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
+                  ) : (
+                    <HeartIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
+                  )}
+                  {likes.likes_count > 0 && likes.likes_count}
+                </Button>
+                <Button variant="secondary" onClick={handleFork} isLoading={isForking}>
+                  <DocumentDuplicateIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
+                  Copiar a mi biblioteca
+                </Button>
+              </>
+            )}
+            {!isAuthenticated && (
+              <Button variant="secondary" onClick={handleFork} isLoading={isForking}>
+                <DocumentDuplicateIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
+                Copiar a mi biblioteca
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="card">
@@ -168,6 +234,10 @@ export function PublicSongPage() {
             />
           </div>
         </div>
+
+        {isAuthenticated && id && (
+          <CommentsSection songId={id} />
+        )}
       </div>
     </Layout>
   );

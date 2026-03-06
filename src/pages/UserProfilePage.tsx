@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Layout } from '../components/layout';
 import { Card, CardHeader, CardContent, Button } from '../components/ui';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { supabase } from '../services/supabase';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -44,14 +45,21 @@ export function UserProfilePage() {
   const loadProfile = async (username: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/songs/users/${username}`);
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const headers: HeadersInit = {};
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+      
+      const response = await fetch(`${API_URL}/songs/users/${username}`, { headers });
       if (!response.ok) {
         throw new Error('User not found');
       }
       const profileData = await response.json();
       setProfile(profileData);
 
-      const songsResponse = await fetch(`${API_URL}/songs/users/${username}/songs`);
+      const songsResponse = await fetch(`${API_URL}/songs/users/${username}/songs`, { headers });
       const songsData = await songsResponse.json();
       setSongs(songsData);
     } catch (error) {

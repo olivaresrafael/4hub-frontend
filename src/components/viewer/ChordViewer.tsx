@@ -22,7 +22,7 @@ export function ChordViewer({
   const parsedSong = parseSong(transposedContent);
 
   return (
-    <div className={`font-mono text-sm whitespace-pre ${className}`}>
+    <div className={`font-mono text-sm leading-7 ${className}`} style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace' }}>
       {parsedSong.lines.map((line, lineIndex) => (
         <ChordLine key={lineIndex} line={line} />
       ))}
@@ -36,43 +36,44 @@ interface ChordLineProps {
 
 function ChordLine({ line }: ChordLineProps) {
   if (line.chords.length === 0) {
-    return <div style={{ lineHeight: '1.75rem', height: '1.75rem' }}>{line.text || '\u00A0'}</div>;
+    return <div className="min-h-[1.75rem]">&nbsp;</div>;
   }
 
-  const chordPositions = new Set(line.chords.map(c => c.charIndex));
+  const chordMap = new Map<number, string>();
+  line.chords.forEach(chord => {
+    chordMap.set(chord.charIndex, chord.chord);
+  });
 
   return (
-    <div style={{ position: 'relative', lineHeight: '1.75rem', height: '3.5rem' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, height: '1.75rem' }}>
-        {line.chords.map((chord, idx) => (
-          <span
+    <div className="flex flex-wrap items-end min-h-[3.5rem]">
+      {line.text.split('').map((char, idx) => {
+        const chord = chordMap.get(idx);
+        return (
+          <div
             key={idx}
-            className="chord-badge"
+            className="flex flex-col items-center justify-end"
             style={{
-              position: 'absolute',
-              left: `${chord.charIndex}ch`,
-              transform: 'translateX(0)',
+              minWidth: '1ch',
+              textAlign: 'center',
             }}
           >
-            {chord.chord}
-          </span>
-        ))}
-      </div>
-      <div style={{ paddingTop: '1.25rem' }}>
-        {line.text.split('').map((char, idx) => (
-          <span
-            key={idx}
-            style={{
-              textDecoration: chordPositions.has(idx) ? 'underline' : 'none',
-              textDecorationColor: chordPositions.has(idx) ? '#f59e0b' : undefined,
-              textDecorationThickness: chordPositions.has(idx) ? '2px' : undefined,
-              textUnderlineOffset: chordPositions.has(idx) ? '3px' : undefined,
-            }}
-          >
-            {char}
-          </span>
-        ))}
-      </div>
+            {chord && (
+              <span
+                className="text-amber-500 font-semibold text-xs whitespace-nowrap"
+                style={{ marginBottom: '2px' }}
+              >
+                {chord}
+              </span>
+            )}
+            <span
+              className={chord ? "text-amber-500 underline decoration-2 underline-offset-2" : ""}
+              style={{ lineHeight: 1 }}
+            >
+              {char}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
