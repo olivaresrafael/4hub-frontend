@@ -795,3 +795,30 @@ export async function getLikedSongs(): Promise<Song[]> {
   
   return response.json();
 }
+
+// =============================================
+// ACTIVITY FEED
+// =============================================
+
+export interface ActivityItem {
+  id: string;
+  type: 'new' | 'fork';
+  song_title: string;
+  song_id: string;
+  user_id: string;
+  username: string;
+  avatar_url: string | null;
+  parent_song: { id: string; title: string } | null;
+  created_at: string;
+}
+
+export async function getActivityFeed(limit = 20, offset = 0): Promise<ActivityItem[]> {
+  const response = await fetch(`${API_URL}/songs/activity/feed?limit=${limit}&offset=${offset}`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get activity feed');
+  }
+  
+  return response.json();
+}
