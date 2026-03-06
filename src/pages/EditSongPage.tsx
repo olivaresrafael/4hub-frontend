@@ -4,10 +4,16 @@ import type { UpdateSongDTO } from '../types';
 import { useSongsStore } from '../stores';
 import { Layout } from '../components/layout';
 import { SongEditor } from '../components/editor';
-import { Button, Input, ShareModal, CollaboratorsModal, VersionsModal } from '../components/ui';
+import { Button, Input, Select, ShareModal, CollaboratorsModal, VersionsModal } from '../components/ui';
+import { GenreSelect } from '../components/ui/GenreSelect';
 import toast from 'react-hot-toast';
 import { ArrowLeftIcon, TrashIcon, ShareIcon, UsersIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { logActivity, createSongVersion } from '../services/songService';
+
+const MUSICAL_KEYS = [
+  'C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B',
+  'Cm', 'C#m', 'Dbm', 'Dm', 'D#m', 'Ebm', 'Em', 'Fm', 'F#m', 'Gbm', 'Gm', 'G#m', 'Abm', 'Am', 'A#m', 'Bbm', 'Bm',
+];
 
 export function EditSongPage() {
   const { id } = useParams<{ id: string }>();
@@ -187,12 +193,16 @@ export function EditSongPage() {
                   placeholder="Nombre del artista"
                 />
 
-                <Input
+                <Select
                   label="Tonalidad"
                   value={formData.original_key}
                   onChange={handleChange('original_key')}
-                  placeholder="Ej: C, Am, G"
-                />
+                >
+                  <option value="">Seleccionar...</option>
+                  {MUSICAL_KEYS.map((key) => (
+                    <option key={key} value={key}>{key}</option>
+                  ))}
+                </Select>
 
                 <Input
                   label="Tempo (BPM)"
@@ -202,11 +212,9 @@ export function EditSongPage() {
                   placeholder="120"
                 />
 
-                <Input
-                  label="Género"
+                <GenreSelect
                   value={formData.genre}
-                  onChange={handleChange('genre')}
-                  placeholder="Pop, Rock, Folk..."
+                  onChange={(value) => setFormData(prev => ({ ...prev, genre: value }))}
                 />
 
                 <div className="flex items-center gap-2">
@@ -224,34 +232,37 @@ export function EditSongPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                className="flex-1"
-                onClick={() => navigate('/songs')}
-              >
-                Cancelar
-              </Button>
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="secondary"
                 onClick={handleSaveVersion}
                 title="Guardar una versión"
+                className="!px-3 !py-1.5 text-sm"
               >
                 <ClockIcon className="h-4 w-4 mr-1" />
-                Guardar Versión
+                Version
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => setShowVersionsModal(true)}
                 title="Ver historial de versiones"
+                className="!px-3 !py-1.5 text-sm"
               >
                 <ClockIcon className="h-4 w-4 mr-1" />
                 Historial
               </Button>
+              <div className="flex-1" />
               <Button
-                className="flex-1"
+                variant="secondary"
+                onClick={() => navigate('/songs')}
+                className="!px-4"
+              >
+                Cancelar
+              </Button>
+              <Button
                 onClick={handleSave}
                 isLoading={isLoading}
+                className="!px-6"
               >
                 Guardar
               </Button>

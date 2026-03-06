@@ -4,9 +4,15 @@ import type { CreateSongDTO } from "../types";
 import { useSongsStore } from "../stores";
 import { Layout } from "../components/layout";
 import { SongEditor } from "../components/editor";
-import { Button, Input } from "../components/ui";
+import { Button, Input, Select } from "../components/ui";
+import { GenreSelect } from "../components/ui/GenreSelect";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+
+const MUSICAL_KEYS = [
+  'C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B',
+  'Cm', 'C#m', 'Dbm', 'Dm', 'D#m', 'Ebm', 'Em', 'Fm', 'F#m', 'Gbm', 'Gm', 'G#m', 'Abm', 'Am', 'A#m', 'Bbm', 'Bm',
+];
 
 export function NewSongPage() {
   const navigate = useNavigate();
@@ -22,7 +28,7 @@ export function NewSongPage() {
   });
 
   const handleChange =
-    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const value =
         e.target.type === "checkbox" ? e.target.checked : e.target.value;
       setFormData((prev) => ({ ...prev, [field]: value }));
@@ -44,7 +50,7 @@ export function NewSongPage() {
         title: formData.title.trim(),
         content: content.trim(),
         artist: formData.artist.trim() || undefined,
-        original_key: formData.original_key.trim() || undefined,
+        original_key: formData.original_key || undefined,
         tempo: formData.tempo ? parseInt(formData.tempo) : undefined,
         genre: formData.genre.trim() || undefined,
         is_public: formData.is_public,
@@ -109,13 +115,16 @@ export function NewSongPage() {
                   placeholder="Nombre del artista"
                 />
 
-                <Input
+                <Select
                   label="Tonalidad"
                   value={formData.original_key}
                   onChange={handleChange("original_key")}
-                  placeholder="Ej: C, Am, G"
-                  helperText="Tonalidad original de la canción"
-                />
+                >
+                  <option value="">Seleccionar...</option>
+                  {MUSICAL_KEYS.map((key) => (
+                    <option key={key} value={key}>{key}</option>
+                  ))}
+                </Select>
 
                 <Input
                   label="Tempo (BPM)"
@@ -125,11 +134,9 @@ export function NewSongPage() {
                   placeholder="120"
                 />
 
-                <Input
-                  label="Género"
+                <GenreSelect
                   value={formData.genre}
-                  onChange={handleChange("genre")}
-                  placeholder="Pop, Rock, Folk..."
+                  onChange={(value) => setFormData(prev => ({ ...prev, genre: value }))}
                 />
 
                 <div className="flex items-center gap-2">
