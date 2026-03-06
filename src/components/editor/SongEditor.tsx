@@ -30,8 +30,6 @@ export function SongEditor({
     [onChange]
   );
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ 
@@ -83,13 +81,7 @@ export function SongEditor({
       </div>
 
       <div style={{ display: 'flex', flex: 1, gap: '1rem', minHeight: 0 }}>
-        {/* Editor Panel */}
-        <div
-          style={{
-            flex: 1,
-            display: isMobile && activeTab !== 'editor' ? 'none' : 'block',
-          }}
-        >
+        {activeTab === 'editor' ? (
           <textarea
             value={content}
             onChange={handleChange}
@@ -109,28 +101,26 @@ export function SongEditor({
             }}
             spellCheck={false}
           />
-        </div>
-
-        {/* Preview Panel */}
-        <div
-          style={{
-            flex: 1,
-            border: '1px solid #e5e7eb',
-            borderRadius: '0.5rem',
-            padding: '1rem',
-            overflow: 'auto',
-            backgroundColor: '#f9fafb',
-            display: isMobile && activeTab !== 'preview' ? 'none' : 'block',
-          }}
-        >
-          {content ? (
-            <ChordViewer content={content} />
-          ) : (
-            <div style={{ color: '#9ca3af', fontSize: '0.875rem', fontStyle: 'italic' }}>
-              La vista previa aparecerá aquí...
-            </div>
-          )}
-        </div>
+        ) : (
+          <div
+            style={{
+              flex: 1,
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              overflow: 'auto',
+              backgroundColor: '#f9fafb',
+            }}
+          >
+            {content ? (
+              <ChordViewer content={content} />
+            ) : (
+              <div style={{ color: '#9ca3af', fontSize: '0.875rem', fontStyle: 'italic' }}>
+                La vista previa aparecerá aquí...
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

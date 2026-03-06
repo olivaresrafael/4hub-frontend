@@ -157,28 +157,27 @@ export function PublicSongPage() {
                 </span>
               </div>
             )}
-            {isAuthenticated && (
+            <Button
+              variant={likes.user_liked ? 'primary' : 'secondary'}
+              onClick={handleLike}
+              disabled={isLiking || !isAuthenticated}
+              title={isAuthenticated ? 'Me gusta' : 'Inicia sesión para dar like'}
+            >
+              {likes.user_liked ? (
+                <HeartIconSolid style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
+              ) : (
+                <HeartIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
+              )}
+              {likes.likes_count > 0 && likes.likes_count}
+            </Button>
+            {isAuthenticated ? (
               <>
-                <Button
-                  variant={likes.user_liked ? 'primary' : 'secondary'}
-                  onClick={handleLike}
-                  disabled={isLiking}
-                  title={isAuthenticated ? 'Me gusta' : 'Inicia sesión para dar like'}
-                >
-                  {likes.user_liked ? (
-                    <HeartIconSolid style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
-                  ) : (
-                    <HeartIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
-                  )}
-                  {likes.likes_count > 0 && likes.likes_count}
-                </Button>
                 <Button variant="secondary" onClick={handleFork} isLoading={isForking}>
                   <DocumentDuplicateIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
                   Copiar a mi biblioteca
                 </Button>
               </>
-            )}
-            {!isAuthenticated && (
+            ) : (
               <Button variant="secondary" onClick={handleFork} isLoading={isForking}>
                 <DocumentDuplicateIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.25rem' }} />
                 Copiar a mi biblioteca
@@ -235,7 +234,7 @@ export function PublicSongPage() {
           </div>
         </div>
 
-        {isAuthenticated && id && (
+        {id && (
           <CommentsSection songId={id} />
         )}
       </div>

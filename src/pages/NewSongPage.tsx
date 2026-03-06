@@ -1,39 +1,41 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import type { CreateSongDTO } from '../types';
-import { useSongsStore } from '../stores';
-import { Layout } from '../components/layout';
-import { SongEditor } from '../components/editor';
-import { Button, Input } from '../components/ui';
-import toast from 'react-hot-toast';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import type { CreateSongDTO } from "../types";
+import { useSongsStore } from "../stores";
+import { Layout } from "../components/layout";
+import { SongEditor } from "../components/editor";
+import { Button, Input } from "../components/ui";
+import toast from "react-hot-toast";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 export function NewSongPage() {
   const navigate = useNavigate();
   const { create, isLoading } = useSongsStore();
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [formData, setFormData] = useState({
-    title: '',
-    artist: '',
-    original_key: '',
-    tempo: '',
-    genre: '',
+    title: "",
+    artist: "",
+    original_key: "",
+    tempo: "",
+    genre: "",
     is_public: false,
   });
 
-  const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const handleChange =
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value =
+        e.target.type === "checkbox" ? e.target.checked : e.target.value;
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    };
 
   const handleSave = async () => {
     if (!formData.title.trim()) {
-      toast.error('El título es requerido');
+      toast.error("El título es requerido");
       return;
     }
 
     if (!content.trim()) {
-      toast.error('El contenido de la canción es requerido');
+      toast.error("El contenido de la canción es requerido");
       return;
     }
 
@@ -49,10 +51,11 @@ export function NewSongPage() {
       };
 
       await create(songData);
-      toast.success('Canción creada exitosamente');
-      navigate('/songs');
+      toast.success("Canción creada exitosamente");
+      navigate("/songs");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Error al crear la canción';
+      const message =
+        error instanceof Error ? error.message : "Error al crear la canción";
       toast.error(message);
     }
   };
@@ -61,7 +64,7 @@ export function NewSongPage() {
     <Layout>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate('/songs')}>
+          <Button variant="ghost" onClick={() => navigate("/songs")}>
             <ArrowLeftIcon className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-900">Nueva Canción</h1>
@@ -73,7 +76,7 @@ export function NewSongPage() {
               <Input
                 label="Título *"
                 value={formData.title}
-                onChange={handleChange('title')}
+                onChange={handleChange("title")}
                 placeholder="Nombre de la canción"
               />
             </div>
@@ -84,30 +87,32 @@ export function NewSongPage() {
                 onChange={setContent}
                 placeholder={`[Em](E)scribe tu canción aquí...
 
-[C]Usa esta sintaxis para [G]agregar acordes:
-[Am]Acorde entre corchetes [B7]y letra entre paréntesis
+[C](U)sa esta sintaxis para [G](a)gregar acordes:
+[Am](A)corde entre corchetes [B7](y) letra entre paréntesis
 
 [Ejemplo:
-[G]Hola [D]mundo [Em]feliz [C]hoy]`}
+[G](H)ola [D](m)undo [Em](f)eliz [C](h)oy]`}
               />
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Detalles</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Detalles
+              </h3>
               <div className="space-y-4">
                 <Input
                   label="Artista"
                   value={formData.artist}
-                  onChange={handleChange('artist')}
+                  onChange={handleChange("artist")}
                   placeholder="Nombre del artista"
                 />
 
                 <Input
                   label="Tonalidad"
                   value={formData.original_key}
-                  onChange={handleChange('original_key')}
+                  onChange={handleChange("original_key")}
                   placeholder="Ej: C, Am, G"
                   helperText="Tonalidad original de la canción"
                 />
@@ -116,14 +121,14 @@ export function NewSongPage() {
                   label="Tempo (BPM)"
                   type="number"
                   value={formData.tempo}
-                  onChange={handleChange('tempo')}
+                  onChange={handleChange("tempo")}
                   placeholder="120"
                 />
 
                 <Input
                   label="Género"
                   value={formData.genre}
-                  onChange={handleChange('genre')}
+                  onChange={handleChange("genre")}
                   placeholder="Pop, Rock, Folk..."
                 />
 
@@ -132,7 +137,7 @@ export function NewSongPage() {
                     type="checkbox"
                     id="is_public"
                     checked={formData.is_public}
-                    onChange={handleChange('is_public')}
+                    onChange={handleChange("is_public")}
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   <label htmlFor="is_public" className="text-sm text-gray-700">
@@ -146,7 +151,7 @@ export function NewSongPage() {
               <Button
                 variant="secondary"
                 className="flex-1"
-                onClick={() => navigate('/songs')}
+                onClick={() => navigate("/songs")}
               >
                 Cancelar
               </Button>

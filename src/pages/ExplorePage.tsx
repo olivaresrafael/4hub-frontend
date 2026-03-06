@@ -109,46 +109,48 @@ export function ExplorePage() {
 
         {activeTab === 'explore' && (
           <>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex-1 min-w-[200px]">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative flex-1 min-w-[200px] max-w-md">
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
                   type="text"
                   placeholder="Buscar por título, artista o contenido..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 w-full"
                 />
               </div>
-              <Select
-                value={genre}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setGenre(e.target.value)}
-                className="w-40"
-              >
-                <option value="">Género</option>
-                {GENRES.map((g) => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </Select>
-              <Select
-                value={key}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setKey(e.target.value)}
-                className="w-32"
-              >
-                <option value="">Tonalidad</option>
-                {KEYS.map((k) => (
-                  <option key={k} value={k}>{k}</option>
-                ))}
-              </Select>
-              <Select
-                value={sort}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSort(e.target.value as 'recent' | 'popular' | 'views')}
-                className="w-40"
-              >
-                <option value="recent">Más recientes</option>
-                <option value="popular">Más gustadas</option>
-                <option value="views">Más vistas</option>
-              </Select>
+              <div className="flex gap-2 shrink-0">
+                <Select
+                  value={genre}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setGenre(e.target.value)}
+                  className="w-28"
+                >
+                  <option value="">Género</option>
+                  {GENRES.map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </Select>
+                <Select
+                  value={key}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setKey(e.target.value)}
+                  className="w-20"
+                >
+                  <option value="">Tono</option>
+                  {KEYS.map((k) => (
+                    <option key={k} value={k}>{k}</option>
+                  ))}
+                </Select>
+                <Select
+                  value={sort}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSort(e.target.value as 'recent' | 'popular' | 'views')}
+                  className="w-32"
+                >
+                  <option value="recent">Recientes</option>
+                  <option value="popular">Populares</option>
+                  <option value="views">Vistas</option>
+                </Select>
+              </div>
             </div>
 
             {isLoading ? (
